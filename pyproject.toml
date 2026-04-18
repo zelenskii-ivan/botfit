@@ -1,0 +1,6 @@
+[project]
+name = "bakery-bot"
+version = "1.0.0"
+
+[tool.pyright]
+include = ["."]

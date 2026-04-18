@@ -1,0 +1,23 @@
+# systemd unit для деплоя на Timeweb Cloud VPS
+# Установка:
+#   sudo cp bakery-bot.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable bakery-bot
+#   sudo systemctl start bakery-bot
+
+[Unit]
+Description=Bakery/Coffee Shop Telegram Bot
+After=network.target
+
+[Service]
+Type=simple
+User=deploy
+WorkingDirectory=/home/deploy/bakery-bot
+Environment="PATH=/home/deploy/bakery-bot/venv/bin"
+EnvironmentFile=/home/deploy/bakery-bot/.env
+ExecStart=/home/deploy/bakery-bot/venv/bin/python main.py
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
