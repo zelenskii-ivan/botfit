@@ -1,7 +1,18 @@
 """Настройка планировщика задач."""
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
-from bot.tasks import request_milk, request_bakery, request_freezer, request_opening, request_cash, request_closing, send_memo, get_schedule_config
+from bot.tasks import (
+    request_milk,
+    request_bakery,
+    request_freezer,
+    request_opening,
+    request_cash,
+    request_closing,
+    request_sanitary,
+    request_equipment,
+    send_memo,
+    get_schedule_config,
+)
 
 
 async def _job_milk():
@@ -34,6 +45,16 @@ async def _job_closing():
     await request_closing(bot, scheduler)
 
 
+async def _job_sanitary():
+    from bot.app import bot, scheduler
+    await request_sanitary(bot, scheduler)
+
+
+async def _job_equipment():
+    from bot.app import bot, scheduler
+    await request_equipment(bot, scheduler)
+
+
 async def _job_memo():
     from bot.app import bot
     await send_memo(bot)
@@ -52,5 +73,20 @@ async def setup_schedule(scheduler: AsyncIOScheduler) -> None:
     scheduler.add_job(_job_closing, "cron", hour=cfg["closing"]["hour"], minute=cfg["closing"]["minute"])
     scheduler.add_job(_job_memo, "cron", hour=cfg["memo_1"]["hour"], minute=cfg["memo_1"]["minute"])
     scheduler.add_job(_job_memo, "cron", hour=cfg["memo_2"]["hour"], minute=cfg["memo_2"]["minute"])
+
+    if cfg["sanitary"]["enabled"]:
+        scheduler.add_job(
+            _job_sanitary,
+            "cron",
+            hour=cfg["sanitary"]["hour"],
+            minute=cfg["sanitary"]["minute"],
+        )
+    if cfg["equipment"]["enabled"]:
+        scheduler.add_job(
+            _job_equipment,
+            "cron",
+            hour=cfg["equipment"]["hour"],
+            minute=cfg["equipment"]["minute"],
+        )
 
     scheduler.start()

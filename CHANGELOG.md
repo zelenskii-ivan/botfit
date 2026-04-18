@@ -2,6 +2,20 @@
 
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/).
 
+## [1.2.0] — 2026-04-18
+
+### Добавлено
+
+- Регламентные чеклисты **санитария** (`sanitary`) и **оборудование** (`equipment`): расписание в `.env`, напоминания и эскалация, команды `/sanitary`, `/equipment`, `/sanitary_ok`, `/equipment_ok`, кнопки в меню.
+- База знаний `bot/faq_knowledge.md` (можно заменить путём `FAQ_PATH`).
+- Команды `/topics` (список разделов FAQ) и `/ask …` — ответы через OpenAI по базе знаний (`OPENAI_API_KEY`, `AI_ENABLED=true`, опционально `OPENAI_BASE_URL`).
+- Зависимость `openai`, лимит запросов ИИ на пользователя в минуту.
+
+### Изменено
+
+- Версия **1.2.0**, статус и API включают задачи `sanitary` и `equipment`.
+- `.dockerignore`: в образ по-прежнему попадает `bot/faq_knowledge.md`.
+
 ## [1.1.0] — 2026-04-18
 
 ### Добавлено

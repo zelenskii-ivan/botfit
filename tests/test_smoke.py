@@ -47,7 +47,16 @@ class TestAPI(unittest.TestCase):
         self.assertIn("summary", data)
         self.assertIn("all_done", data["summary"])
         tasks = data["tasks"]
-        for name in ("milk", "bakery", "freezer", "opening", "cash", "closing"):
+        for name in (
+            "milk",
+            "bakery",
+            "freezer",
+            "opening",
+            "cash",
+            "closing",
+            "sanitary",
+            "equipment",
+        ):
             self.assertIn(name, tasks)
 
 
@@ -57,6 +66,15 @@ class TestStatusText(unittest.TestCase):
         self.assertIn("Статус за", text)
         self.assertIn("Молочка", text)
         self.assertIn("Заморозка", text)
+        self.assertIn("Санитария", text)
+
+
+class TestKnowledge(unittest.TestCase):
+    def test_topic_titles(self) -> None:
+        from bot.knowledge import list_topic_titles
+
+        titles = list_topic_titles()
+        self.assertTrue(len(titles) >= 1)
 
 
 class TestImports(unittest.TestCase):

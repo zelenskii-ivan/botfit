@@ -58,6 +58,8 @@ async def status():
         "opening": _fmt_task("opening", data["opening"], ["checklist_done"]),
         "cash": _fmt_task("cash", data["cash"], ["checklist_done"]),
         "closing": _fmt_task("closing", data["closing"], ["checklist_done"]),
+        "sanitary": _fmt_task("sanitary", data["sanitary"], ["checklist_done"]),
+        "equipment": _fmt_task("equipment", data["equipment"], ["checklist_done"]),
     }
     return {
         "date": d,

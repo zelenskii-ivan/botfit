@@ -25,6 +25,12 @@ from bot.config import (
     MEMO_MIN_1,
     MEMO_HOUR_2,
     MEMO_MIN_2,
+    SANITARY_ENABLED,
+    SANITARY_HOUR,
+    SANITARY_MIN,
+    EQUIPMENT_ENABLED,
+    EQUIPMENT_HOUR,
+    EQUIPMENT_MIN,
 )
 from bot.state import day_key, get_task, is_done, set_await
 
@@ -167,6 +173,42 @@ async def request_closing(bot: Bot, scheduler, chat_id: int = None) -> None:
     _schedule_reminders(bot, scheduler, "closing")
 
 
+async def request_sanitary(bot: Bot, scheduler, chat_id: int = None) -> None:
+    """Ежедневно: санитария и уборка по регламенту."""
+    cid = chat_id or GROUP_ID
+    st = get_task("sanitary")
+    st["status"] = "waiting"
+    st["chat_id"] = cid
+    st["checklist_done"] = False
+    await bot.send_message(
+        cid,
+        "🧹 <b>САНИТАРИЯ И УБОРКА</b>\n"
+        "Подтвердите по регламенту:\n"
+        "• Уборка зала и столиков\n• Санузел и зона мытья посуды\n• Вынос мусора\n\n"
+        "Ответьте /sanitary_ok или кнопкой «Санитария ОК», когда всё сделано.",
+    )
+    _schedule_reminders(bot, scheduler, "sanitary")
+
+
+async def request_equipment(bot: Bot, scheduler, chat_id: int = None) -> None:
+    """Ежедневно: проверка оборудования."""
+    cid = chat_id or GROUP_ID
+    st = get_task("equipment")
+    st["status"] = "waiting"
+    st["chat_id"] = cid
+    st["checklist_done"] = False
+    await bot.send_message(
+        cid,
+        "🔧 <b>ПРОВЕРКА ОБОРУДОВАНИЯ</b>\n"
+        "Подтвердите осмотр:\n"
+        "• Кофемашина (вода, отходы, ошибки на дисплее)\n"
+        "• Холодильники / морозилка (закрыты, без постороннего шума)\n"
+        "• Освещение и вытяжка\n\n"
+        "Ответьте /equipment_ok или кнопкой «Оборудование ОК», если всё в порядке.",
+    )
+    _schedule_reminders(bot, scheduler, "equipment")
+
+
 async def remind_if_needed(bot: Bot, task: str) -> None:
     """Напоминание, если задача не выполнена."""
     if is_done(task):
@@ -202,6 +244,14 @@ async def remind_if_needed(bot: Bot, task: str) -> None:
 
     if task == "cash":
         await bot.send_message(cid, "⚠️ Напоминание: не подтверждён <b>подсчёт наличных в кассе</b>. Ответьте /cash_ok", **kwargs)
+        return
+
+    if task == "sanitary":
+        await bot.send_message(cid, "⚠️ Напоминание: не подтверждена <b>санитария и уборка</b>. Ответьте /sanitary_ok", **kwargs)
+        return
+
+    if task == "equipment":
+        await bot.send_message(cid, "⚠️ Напоминание: не подтверждена <b>проверка оборудования</b>. Ответьте /equipment_ok", **kwargs)
         return
 
 
@@ -245,6 +295,14 @@ async def escalate_if_needed(bot: Bot, task: str) -> None:
         await bot.send_message(cid, f"🚨 <b>НЕ СДАНО:</b> Подсчёт наличных в кассе за {d}.", **kwargs)
         return
 
+    if task == "sanitary":
+        await bot.send_message(cid, f"🚨 <b>НЕ СДАНО:</b> Санитария и уборка за {d}.", **kwargs)
+        return
+
+    if task == "equipment":
+        await bot.send_message(cid, f"🚨 <b>НЕ СДАНО:</b> Проверка оборудования за {d}.", **kwargs)
+        return
+
 
 async def send_memo(bot: Bot) -> None:
     """Отправить памятку с обязательными работами в группу (2 раза в день)."""
@@ -263,4 +321,14 @@ def get_schedule_config() -> dict:
         "closing": {"hour": CLOSING_HOUR, "minute": CLOSING_MIN},
         "memo_1": {"hour": MEMO_HOUR_1, "minute": MEMO_MIN_1},
         "memo_2": {"hour": MEMO_HOUR_2, "minute": MEMO_MIN_2},
+        "sanitary": {
+            "enabled": SANITARY_ENABLED,
+            "hour": SANITARY_HOUR,
+            "minute": SANITARY_MIN,
+        },
+        "equipment": {
+            "enabled": EQUIPMENT_ENABLED,
+            "hour": EQUIPMENT_HOUR,
+            "minute": EQUIPMENT_MIN,
+        },
     }

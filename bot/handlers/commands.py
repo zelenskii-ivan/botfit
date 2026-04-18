@@ -2,7 +2,8 @@
 import logging
 
 from aiogram import Router, F
-from aiogram.filters import Command
+from aiogram.enums import ChatAction
+from aiogram.filters import Command, CommandObject
 from aiogram.types import Message
 
 from bot.config import GROUP_ID  # для /id и /ping
@@ -11,7 +12,16 @@ from bot.keyboards import main_keyboard, reply_keyboard
 log = logging.getLogger(__name__)
 from bot.state import day_key, get_task
 from bot.status_text import format_day_status_html
-from bot.tasks import request_milk, request_bakery, request_freezer, request_opening, request_cash, request_closing
+from bot.tasks import (
+    request_milk,
+    request_bakery,
+    request_freezer,
+    request_opening,
+    request_cash,
+    request_closing,
+    request_sanitary,
+    request_equipment,
+)
 
 router = Router()
 
@@ -93,6 +103,58 @@ async def btn_closing_ok(message: Message):
     await message.reply("✅ <b>ЗАКРЫТИЕ</b>: чеклист подтверждён.")
 
 
+@router.message(F.text == "🧹 Санитария ОК")
+async def btn_sanitary_ok(message: Message):
+    st = get_task("sanitary")
+    st["checklist_done"] = True
+    st["status"] = "done"
+    await message.reply("✅ <b>САНИТАРИЯ</b>: регламент подтверждён.")
+
+
+@router.message(F.text == "🔧 Оборудование ОК")
+async def btn_equipment_ok(message: Message):
+    st = get_task("equipment")
+    st["checklist_done"] = True
+    st["status"] = "done"
+    await message.reply("✅ <b>ОБОРУДОВАНИЕ</b>: проверка подтверждена.")
+
+
+@router.message(Command("ask"))
+async def cmd_ask(message: Message, command: CommandObject):
+    """Вопрос к ИИ по базе знаний (faq_knowledge.md)."""
+    args = (command.args or "").strip()
+    if not args:
+        await message.answer(
+            "💬 <b>Вопрос по регламенту</b>\n"
+            "Напишите, например:\n"
+            "<code>/ask Когда подтверждать кассу?</code>\n\n"
+            "Список тем: /topics"
+        )
+        return
+    await message.bot.send_chat_action(message.chat.id, ChatAction.TYPING)
+    from bot.ai_qa import answer_faq_question
+
+    uid = message.from_user.id if message.from_user else 0
+    text = await answer_faq_question(uid, args)
+    await message.answer(text)
+
+
+@router.message(Command("topics"))
+async def cmd_topics(message: Message):
+    """Заголовки разделов базы знаний."""
+    from bot.ai_qa import is_ai_configured
+    from bot.knowledge import list_topic_titles
+
+    titles = list_topic_titles()
+    body = "\n".join(f"• {t}" for t in titles) if titles else "—"
+    hint = (
+        "\n\nИИ включён: задайте вопрос командой /ask …"
+        if is_ai_configured()
+        else "\n\nДля ответов ИИ добавьте в .env: OPENAI_API_KEY и AI_ENABLED=true"
+    )
+    await message.answer(f"📚 <b>Темы в базе знаний</b>\n{body}{hint}")
+
+
 @router.message(Command("memo"))
 async def cmd_memo(message: Message):
     """Памятка с обязательными работами."""
@@ -167,6 +229,18 @@ async def cmd_closing(message: Message):
     await request_closing(bot, scheduler, message.chat.id)
 
 
+@router.message(Command("sanitary"))
+async def cmd_sanitary(message: Message):
+    bot, scheduler = _get_bot_and_scheduler()
+    await request_sanitary(bot, scheduler, message.chat.id)
+
+
+@router.message(Command("equipment"))
+async def cmd_equipment(message: Message):
+    bot, scheduler = _get_bot_and_scheduler()
+    await request_equipment(bot, scheduler, message.chat.id)
+
+
 @router.message(Command("opening_ok"))
 async def cmd_opening_ok(message: Message):
     st = get_task("opening")
@@ -189,6 +263,22 @@ async def cmd_cash_ok(message: Message):
     st["checklist_done"] = True
     st["status"] = "done"
     await message.reply("✅ <b>ПОДСЧЁТ НАЛИЧНЫХ</b>: подтверждён.")
+
+
+@router.message(Command("sanitary_ok"))
+async def cmd_sanitary_ok(message: Message):
+    st = get_task("sanitary")
+    st["checklist_done"] = True
+    st["status"] = "done"
+    await message.reply("✅ <b>САНИТАРИЯ</b>: регламент подтверждён.")
+
+
+@router.message(Command("equipment_ok"))
+async def cmd_equipment_ok(message: Message):
+    st = get_task("equipment")
+    st["checklist_done"] = True
+    st["status"] = "done"
+    await message.reply("✅ <b>ОБОРУДОВАНИЕ</b>: проверка подтверждена.")
 
 
 @router.message(Command("status"))

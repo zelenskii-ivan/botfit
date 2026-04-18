@@ -47,6 +47,10 @@ def is_done(task: str) -> bool:
         return st.get("checklist_done") is True
     if task == "cash":
         return st.get("checklist_done") is True
+    if task == "sanitary":
+        return st.get("checklist_done") is True
+    if task == "equipment":
+        return st.get("checklist_done") is True
     return False
 
 
@@ -82,4 +86,6 @@ def get_day_status(date: str) -> Dict:
         "opening": active.get((date, "opening")),
         "cash": active.get((date, "cash")),
         "closing": active.get((date, "closing")),
+        "sanitary": active.get((date, "sanitary")),
+        "equipment": active.get((date, "equipment")),
     }
