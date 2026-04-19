@@ -39,21 +39,33 @@ MEMO_MIN_1 = int(os.getenv("MEMO_MIN_1", "0"))
 MEMO_HOUR_2 = int(os.getenv("MEMO_HOUR_2", "15"))
 MEMO_MIN_2 = int(os.getenv("MEMO_MIN_2", "0"))
 
-# Регламент: санитария (ежедневный чеклист)
-SANITARY_ENABLED = os.getenv("SANITARY_ENABLED", "true").lower() == "true"
-SANITARY_HOUR = int(os.getenv("SANITARY_HOUR", "14"))
-SANITARY_MIN = int(os.getenv("SANITARY_MIN", "0"))
-
-# Регламент: проверка оборудования (ежедневно)
-EQUIPMENT_ENABLED = os.getenv("EQUIPMENT_ENABLED", "true").lower() == "true"
-EQUIPMENT_HOUR = int(os.getenv("EQUIPMENT_HOUR", "12"))
-EQUIPMENT_MIN = int(os.getenv("EQUIPMENT_MIN", "0"))
-
-# ИИ (OpenAI-совместимый API)
-AI_ENABLED = os.getenv("AI_ENABLED", "false").lower() == "true"
+# OpenAI (Vision + рекомендация при отсутствии Claude)
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "").strip()
-OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
-OPENAI_BASE_URL = os.getenv("OPENAI_BASE_URL", "").strip() or None  # для прокси / Azure / др.
+OPENAI_BASE_URL = os.getenv("OPENAI_BASE_URL", "").strip() or None
+
+# После фото выпечки запускать тот же ИИ (Vision + рекомендация), что и для полки
+BAKERY_RUN_SHELF_AI = os.getenv("BAKERY_RUN_SHELF_AI", "false").lower() == "true"
+
+# Модуль полки (27.04–20.05.2026)
+SHELF_ENABLED = os.getenv("SHELF_ENABLED", "false").lower() == "true"
+SHELF_HOUR = int(os.getenv("SHELF_HOUR", "19"))
+SHELF_MIN = int(os.getenv("SHELF_MIN", "30"))
+MANAGER_CHAT_ID = int(os.getenv("MANAGER_CHAT_ID", str(GROUP_ID)))
+
+
+def _opt_float(name: str):
+    v = os.getenv(name, "").strip()
+    return float(v) if v else None
+
+
+WEATHER_API_KEY = os.getenv("WEATHER_API_KEY", "").strip()
+WEATHER_CITY = os.getenv("WEATHER_CITY", "Moscow")
+WEATHER_LAT = _opt_float("WEATHER_LAT")
+WEATHER_LON = _opt_float("WEATHER_LON")
+
+ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "").strip()
+SHELF_RECOMMEND_ANTHROPIC_MODEL = os.getenv("SHELF_RECOMMEND_ANTHROPIC_MODEL", "claude-sonnet-4-20250514")
+SHELF_RECOMMEND_OPENAI_MODEL = os.getenv("SHELF_RECOMMEND_OPENAI_MODEL", "gpt-4o")
 
 # API (для health check и мониторинга)
 API_HOST = os.getenv("API_HOST", "0.0.0.0")

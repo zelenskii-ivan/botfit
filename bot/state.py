@@ -1,6 +1,21 @@
 """Управление состоянием задач."""
+import json
+import logging
 from datetime import datetime, timedelta
-from typing import Dict, Tuple, Optional
+from pathlib import Path
+from typing import Any, Dict, Optional, Tuple
+
+log = logging.getLogger(__name__)
+
+SHELF_HISTORY_PATH = Path(__file__).resolve().parent.parent / "data" / "shelf_history.json"
+
+shelf: Dict[str, Any] = {
+    "today_remainders": None,
+    "sales_history": {},
+    "weather": None,
+    "last_recommendation": None,
+    "recommendation_accepted": False,
+}
 
 
 def day_key() -> str:
@@ -47,11 +62,32 @@ def is_done(task: str) -> bool:
         return st.get("checklist_done") is True
     if task == "cash":
         return st.get("checklist_done") is True
-    if task == "sanitary":
-        return st.get("checklist_done") is True
-    if task == "equipment":
-        return st.get("checklist_done") is True
+    if task == "shelf":
+        return st.get("analysis_done") is True
     return False
+
+
+def load_shelf_persist() -> None:
+    global shelf
+    if not SHELF_HISTORY_PATH.is_file():
+        return
+    try:
+        raw = json.loads(SHELF_HISTORY_PATH.read_text(encoding="utf-8"))
+        shelf["sales_history"] = raw.get("sales_history", {})
+        shelf["last_recommendation"] = raw.get("last_recommendation")
+        shelf["recommendation_accepted"] = raw.get("recommendation_accepted", False)
+    except Exception as e:
+        log.warning("load_shelf_persist: %s", e)
+
+
+def save_shelf_persist() -> None:
+    SHELF_HISTORY_PATH.parent.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "sales_history": shelf.get("sales_history", {}),
+        "last_recommendation": shelf.get("last_recommendation"),
+        "recommendation_accepted": shelf.get("recommendation_accepted", False),
+    }
+    SHELF_HISTORY_PATH.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
 def set_await(task: str, need: str, minutes: int = 30, chat_id: Optional[int] = None) -> None:
@@ -86,6 +122,4 @@ def get_day_status(date: str) -> Dict:
         "opening": active.get((date, "opening")),
         "cash": active.get((date, "cash")),
         "closing": active.get((date, "closing")),
-        "sanitary": active.get((date, "sanitary")),
-        "equipment": active.get((date, "equipment")),
     }

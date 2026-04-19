@@ -95,25 +95,12 @@ MILK_HOUR=13
 MILK_MIN=0
 BAKERY_HOUR=20
 BAKERY_MIN=0
-FREEZER_HOUR=20
-FREEZER_MIN=5
 OPENING_HOUR=7
 OPENING_MIN=0
 CASH_HOUR=20
 CASH_MIN=0
 CLOSING_HOUR=21
 CLOSING_MIN=0
-
-SANITARY_ENABLED=true
-SANITARY_HOUR=14
-SANITARY_MIN=0
-EQUIPMENT_ENABLED=true
-EQUIPMENT_HOUR=12
-EQUIPMENT_MIN=0
-
-AI_ENABLED=false
-OPENAI_API_KEY=
-OPENAI_MODEL=gpt-4o-mini
 
 MEMO_HOUR_1=9
 MEMO_MIN_1=0
@@ -141,7 +128,6 @@ rsync -avz --exclude '.git' --exclude 'venv' --exclude '__pycache__' \
 
 ## Проверка после деплоя
 
-1. `curl -s http://ВАШ_IP:8080/health` — `{"status":"healthy",...}`
-2. `curl -s http://ВАШ_IP:8080/version` — `{"service":"bakery-bot","version":"1.1.0",...}`
-3. Напишите боту `/start` в Telegram — должен ответить
-4. В группе отправьте `/id` — бот покажет chat_id
+1. `curl http://ВАШ_IP:8080/health` — должен вернуть `{"status":"healthy"}`
+2. Напишите боту /start в Telegram — должен ответить
+3. В группе отправьте /id — бот покажет chat_id

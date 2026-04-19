@@ -20,6 +20,7 @@ from bot.config import API_TOKEN, API_HOST, API_PORT
 from bot.app import init_app
 from bot.handlers import commands_router, content_router, callbacks_router
 from bot.scheduler import setup_schedule
+from bot.state import load_shelf_persist
 
 RUN_API = os.getenv("RUN_API", "true").lower() == "true"
 
@@ -32,6 +33,8 @@ async def run_bot():
 
     init_app(bot, scheduler)
 
+    load_shelf_persist()
+
     dp.include_router(commands_router)
     dp.include_router(callbacks_router)
     dp.include_router(content_router)
@@ -39,12 +42,7 @@ async def run_bot():
     await setup_schedule(scheduler)
 
     me = await bot.get_me()
-    log.info(
-        "Bakery Bot v%s started: @%s, GROUP_ID=%s",
-        __version__,
-        me.username,
-        os.getenv("GROUP_ID"),
-    )
+    log.info("Bakery Bot v%s started: @%s, GROUP_ID=%s", __version__, me.username, os.getenv("GROUP_ID"))
 
     try:
         await dp.start_polling(bot)

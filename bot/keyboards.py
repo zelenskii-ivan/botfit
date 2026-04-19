@@ -28,10 +28,6 @@ def main_keyboard() -> InlineKeyboardMarkup:
         [
             InlineKeyboardButton(text="🌙 Закрытие ОК", callback_data="cb_closing_ok"),
         ],
-        [
-            InlineKeyboardButton(text="🧹 Санитария ОК", callback_data="cb_sanitary_ok"),
-            InlineKeyboardButton(text="🔧 Оборудование ОК", callback_data="cb_equipment_ok"),
-        ],
     ])
 
 
@@ -51,10 +47,6 @@ def reply_keyboard() -> ReplyKeyboardMarkup:
             [KeyboardButton(text="❄️ Заморозка")],
             [KeyboardButton(text="🌅 Открытие ОК"), KeyboardButton(text="💰 Касса ОК")],
             [KeyboardButton(text="🌙 Закрытие ОК")],
-            [
-                KeyboardButton(text="🧹 Санитария ОК"),
-                KeyboardButton(text="🔧 Оборудование ОК"),
-            ],
         ],
         resize_keyboard=True,
         is_persistent=True,
