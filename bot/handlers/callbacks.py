@@ -117,19 +117,12 @@ async def cb_closing_ok(callback: CallbackQuery):
     await callback.message.answer("✅ <b>ЗАКРЫТИЕ</b>: чеклист подтверждён.")
 
 
-@router.callback_query(F.data == "cb_sanitary_ok")
-async def cb_sanitary_ok(callback: CallbackQuery):
-    await callback.answer("Санитария подтверждена")
-    st = get_task("sanitary")
-    st["checklist_done"] = True
-    st["status"] = "done"
-    await callback.message.answer("✅ <b>САНИТАРИЯ</b>: регламент подтверждён.")
+@router.callback_query(F.data == "cb_shelf_accept")
+async def cb_shelf_accept(callback: CallbackQuery):
+    from bot.state import save_shelf_persist, shelf
 
-
-@router.callback_query(F.data == "cb_equipment_ok")
-async def cb_equipment_ok(callback: CallbackQuery):
-    await callback.answer("Оборудование подтверждено")
-    st = get_task("equipment")
-    st["checklist_done"] = True
-    st["status"] = "done"
-    await callback.message.answer("✅ <b>ОБОРУДОВАНИЕ</b>: проверка подтверждена.")
+    await callback.answer("Отмечено")
+    shelf["recommendation_accepted"] = True
+    save_shelf_persist()
+    if callback.message:
+        await callback.message.reply("✅ Рекомендация по полке отмечена как принятая.")

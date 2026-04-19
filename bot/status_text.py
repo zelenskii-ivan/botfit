@@ -11,8 +11,6 @@ def format_day_status_html(d: str) -> str:
     opening = status["opening"]
     cash = status["cash"]
     closing = status["closing"]
-    sanitary = status["sanitary"]
-    equipment = status["equipment"]
 
     def fmt_milk() -> str:
         if not milk:
@@ -39,7 +37,5 @@ def format_day_status_html(d: str) -> str:
         f"❄️ Заморозка: {fmt_photo_only(freezer)}\n"
         f"🌅 Открытие: {fmt_ck(opening)}\n"
         f"💰 Касса: {fmt_ck(cash)}\n"
-        f"🌙 Закрытие: {fmt_ck(closing)}\n"
-        f"🧹 Санитария: {fmt_ck(sanitary)}\n"
-        f"🔧 Оборудование: {fmt_ck(equipment)}"
+        f"🌙 Закрытие: {fmt_ck(closing)}"
     )

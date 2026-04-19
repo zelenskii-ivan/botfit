@@ -13,8 +13,6 @@ START_MESSAGE = """📖 <b>Bakery Bot — Инструкция</b>
 • <b>20:00</b> — Подсчёт наличных → /cash_ok
 • <b>21:00</b> — Закрытие (чеклист) → /closing_ok
 • <b>9:00 и 15:00</b> — Памятка
-• по расписанию — Санитария → /sanitary_ok
-• по расписанию — Проверка оборудования → /equipment_ok
 
 <b>Напоминания</b>
 • Через 15 мин — напоминание
@@ -31,10 +29,6 @@ START_MESSAGE = """📖 <b>Bakery Bot — Инструкция</b>
 /status — статус за сегодня
 /memo — памятка с работами
 /milk, /bakery, /freezer — запросить отчёты
-/topics — темы базы знаний
-/ask Вопрос… — ответ ИИ по базе (нужен OPENAI_API_KEY)
-/sanitary, /equipment — запросить регламент вручную
-/sanitary_ok, /equipment_ok — подтвердить регламент
 /opening_ok, /closing_ok — подтвердить чеклисты
 /id — chat_id группы
 

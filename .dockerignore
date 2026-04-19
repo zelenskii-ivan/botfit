@@ -4,7 +4,5 @@ __pycache__
 .venv
 venv
 .env
-# README/CHANGELOG не нужны в образе, но bot/faq_knowledge.md — нужен для ИИ
 *.md
-!bot/faq_knowledge.md
 deploy/

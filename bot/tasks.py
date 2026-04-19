@@ -25,12 +25,10 @@ from bot.config import (
     MEMO_MIN_1,
     MEMO_HOUR_2,
     MEMO_MIN_2,
-    SANITARY_ENABLED,
-    SANITARY_HOUR,
-    SANITARY_MIN,
-    EQUIPMENT_ENABLED,
-    EQUIPMENT_HOUR,
-    EQUIPMENT_MIN,
+    SHELF_ENABLED,
+    SHELF_HOUR,
+    SHELF_MIN,
+    MANAGER_CHAT_ID,
 )
 from bot.state import day_key, get_task, is_done, set_await
 
@@ -173,40 +171,31 @@ async def request_closing(bot: Bot, scheduler, chat_id: int = None) -> None:
     _schedule_reminders(bot, scheduler, "closing")
 
 
-async def request_sanitary(bot: Bot, scheduler, chat_id: int = None) -> None:
-    """Ежедневно: санитария и уборка по регламенту."""
+async def request_shelf_photo(
+    bot: Bot,
+    scheduler,
+    chat_id: Optional[int] = None,
+    message_thread_id: Optional[int] = None,
+) -> None:
+    from bot.shelf_period import is_shelf_season_active
+
+    if not is_shelf_season_active():
+        log.info("request_shelf_photo: вне сезона")
+        return
+
     cid = chat_id or GROUP_ID
-    st = get_task("sanitary")
+    st = get_task("shelf")
     st["status"] = "waiting"
     st["chat_id"] = cid
-    st["checklist_done"] = False
-    await bot.send_message(
-        cid,
-        "🧹 <b>САНИТАРИЯ И УБОРКА</b>\n"
-        "Подтвердите по регламенту:\n"
-        "• Уборка зала и столиков\n• Санузел и зона мытья посуды\n• Вынос мусора\n\n"
-        "Ответьте /sanitary_ok или кнопкой «Санитария ОК», когда всё сделано.",
-    )
-    _schedule_reminders(bot, scheduler, "sanitary")
-
-
-async def request_equipment(bot: Bot, scheduler, chat_id: int = None) -> None:
-    """Ежедневно: проверка оборудования."""
-    cid = chat_id or GROUP_ID
-    st = get_task("equipment")
-    st["status"] = "waiting"
-    st["chat_id"] = cid
-    st["checklist_done"] = False
-    await bot.send_message(
-        cid,
-        "🔧 <b>ПРОВЕРКА ОБОРУДОВАНИЯ</b>\n"
-        "Подтвердите осмотр:\n"
-        "• Кофемашина (вода, отходы, ошибки на дисплее)\n"
-        "• Холодильники / морозилка (закрыты, без постороннего шума)\n"
-        "• Освещение и вытяжка\n\n"
-        "Ответьте /equipment_ok или кнопкой «Оборудование ОК», если всё в порядке.",
-    )
-    _schedule_reminders(bot, scheduler, "equipment")
+    st["message_thread_id"] = message_thread_id
+    st["analysis_done"] = False
+    st["photo"] = False
+    text = "📸 Пожалуйста, сфотографируй полку с выпечкой и отправь фото сюда."
+    log.info("request_shelf_photo: chat_id=%s", cid)
+    kwargs = {"message_thread_id": message_thread_id} if message_thread_id else {}
+    await bot.send_message(cid, text, **kwargs)
+    set_await("shelf", "photo_only", ESCALATE_AFTER_MIN, cid)
+    _schedule_reminders(bot, scheduler, "shelf")
 
 
 async def remind_if_needed(bot: Bot, task: str) -> None:
@@ -246,12 +235,12 @@ async def remind_if_needed(bot: Bot, task: str) -> None:
         await bot.send_message(cid, "⚠️ Напоминание: не подтверждён <b>подсчёт наличных в кассе</b>. Ответьте /cash_ok", **kwargs)
         return
 
-    if task == "sanitary":
-        await bot.send_message(cid, "⚠️ Напоминание: не подтверждена <b>санитария и уборка</b>. Ответьте /sanitary_ok", **kwargs)
-        return
-
-    if task == "equipment":
-        await bot.send_message(cid, "⚠️ Напоминание: не подтверждена <b>проверка оборудования</b>. Ответьте /equipment_ok", **kwargs)
+    if task == "shelf":
+        await bot.send_message(
+            cid,
+            "⚠️ Напоминание: пришлите <b>фото полки с выпечкой</b> для отчёта.",
+            **kwargs,
+        )
         return
 
 
@@ -295,12 +284,12 @@ async def escalate_if_needed(bot: Bot, task: str) -> None:
         await bot.send_message(cid, f"🚨 <b>НЕ СДАНО:</b> Подсчёт наличных в кассе за {d}.", **kwargs)
         return
 
-    if task == "sanitary":
-        await bot.send_message(cid, f"🚨 <b>НЕ СДАНО:</b> Санитария и уборка за {d}.", **kwargs)
-        return
-
-    if task == "equipment":
-        await bot.send_message(cid, f"🚨 <b>НЕ СДАНО:</b> Проверка оборудования за {d}.", **kwargs)
+    if task == "shelf":
+        await bot.send_message(
+            MANAGER_CHAT_ID,
+            f"🚨 <b>Полка:</b> нет фото полки с выпечкой за {d} в течение {ESCALATE_AFTER_MIN} мин после запроса. "
+            f"Чат продавца: {cid}.",
+        )
         return
 
 
@@ -321,14 +310,9 @@ def get_schedule_config() -> dict:
         "closing": {"hour": CLOSING_HOUR, "minute": CLOSING_MIN},
         "memo_1": {"hour": MEMO_HOUR_1, "minute": MEMO_MIN_1},
         "memo_2": {"hour": MEMO_HOUR_2, "minute": MEMO_MIN_2},
-        "sanitary": {
-            "enabled": SANITARY_ENABLED,
-            "hour": SANITARY_HOUR,
-            "minute": SANITARY_MIN,
-        },
-        "equipment": {
-            "enabled": EQUIPMENT_ENABLED,
-            "hour": EQUIPMENT_HOUR,
-            "minute": EQUIPMENT_MIN,
+        "shelf": {
+            "enabled": SHELF_ENABLED,
+            "hour": SHELF_HOUR,
+            "minute": SHELF_MIN,
         },
     }

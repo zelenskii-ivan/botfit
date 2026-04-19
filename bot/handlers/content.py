@@ -26,6 +26,12 @@ async def on_photo(message: Message):
         await message.reply("Сейчас бот ждёт <b>ВИДЕО</b>, а не фото.")
         return
 
+    if task == "shelf":
+        from bot.shelf_pipeline import download_and_process_shelf
+
+        await download_and_process_shelf(message)
+        return
+
     st = get_task(task)
     st["photo"] = True
 
@@ -40,12 +46,35 @@ async def on_photo(message: Message):
         st["status"] = "done"
         await message.reply("✅ <b>ВЫПЕЧКА</b>: фото витрины принято.")
         clear_await()
+        from bot.shelf_pipeline import run_shelf_pipeline_after_bakery_if_enabled
+
+        await run_shelf_pipeline_after_bakery_if_enabled(message)
         return
 
     if task == "freezer":
         st["status"] = "done"
         await message.reply("✅ <b>ЗАМОРОЗКА</b>: фото витрины принято.")
         clear_await()
+
+
+@router.message(F.document)
+async def on_document_image_for_shelf(message: Message):
+    awaiting = get_awaiting()
+    if not awaiting or awaiting["until"] < datetime.now():
+        return
+    if awaiting["task"] != "shelf":
+        return
+    if not message.document or not message.document.mime_type:
+        return
+    if not message.document.mime_type.startswith("image/"):
+        return
+    chat_id = awaiting.get("chat_id", GROUP_ID)
+    if message.chat.id != chat_id:
+        return
+
+    from bot.shelf_pipeline import download_and_process_shelf
+
+    await download_and_process_shelf(message)
 
 
 @router.message(F.video)
