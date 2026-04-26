@@ -47,6 +47,8 @@ OPENAI_BASE_URL = os.getenv("OPENAI_BASE_URL", "").strip() or None
 BAKERY_RUN_SHELF_AI = os.getenv("BAKERY_RUN_SHELF_AI", "false").lower() == "true"
 
 # Модуль полки (27.04–20.05.2026)
+# true = считать сезон активным всегда (тест ИИ полки без смены системной даты); в проде выключить
+SHELF_SEASON_BYPASS = os.getenv("SHELF_SEASON_BYPASS", "false").lower() == "true"
 SHELF_ENABLED = os.getenv("SHELF_ENABLED", "false").lower() == "true"
 SHELF_HOUR = int(os.getenv("SHELF_HOUR", "19"))
 SHELF_MIN = int(os.getenv("SHELF_MIN", "30"))

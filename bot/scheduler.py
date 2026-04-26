@@ -1,8 +1,10 @@
 """Настройка планировщика задач."""
+import logging
 from datetime import datetime
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
+from bot.config import SHELF_SEASON_BYPASS
 from bot.tasks import (
     request_milk,
     request_bakery,
@@ -14,6 +16,8 @@ from bot.tasks import (
     send_memo,
     get_schedule_config,
 )
+
+log = logging.getLogger(__name__)
 
 
 async def _job_milk():
@@ -71,13 +75,17 @@ async def setup_schedule(scheduler: AsyncIOScheduler) -> None:
     scheduler.add_job(_job_memo, "cron", hour=cfg["memo_2"]["hour"], minute=cfg["memo_2"]["minute"])
 
     if cfg["shelf"]["enabled"]:
-        scheduler.add_job(
-            _job_shelf,
-            "cron",
-            hour=cfg["shelf"]["hour"],
-            minute=cfg["shelf"]["minute"],
-            start_date=datetime(2026, 4, 27, 0, 0, 0),
-            end_date=datetime(2026, 5, 21, 0, 0, 0),
-        )
+        shelf_kw: dict = {
+            "hour": cfg["shelf"]["hour"],
+            "minute": cfg["shelf"]["minute"],
+        }
+        if SHELF_SEASON_BYPASS:
+            log.warning(
+                "SHELF_SEASON_BYPASS: cron полки без ограничения датами сезона (только для тестов)"
+            )
+        else:
+            shelf_kw["start_date"] = datetime(2026, 4, 27, 0, 0, 0)
+            shelf_kw["end_date"] = datetime(2026, 5, 21, 0, 0, 0)
+        scheduler.add_job(_job_shelf, "cron", **shelf_kw)
 
     scheduler.start()

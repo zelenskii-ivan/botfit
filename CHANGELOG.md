@@ -10,4 +10,5 @@
 - **`bot/state.py`**: `shelf`, `today_remainders`, `sales_history`, персист **`data/shelf_history.json`**.
 - Команды **`/shelf`**, **`/shelf_report`**, **`/shelf_history`**; фото документом при ожидании shelf.
 - Опция **`BAKERY_RUN_SHELF_AI`** — после принятого фото выпечки запускается тот же пайплайн (Vision + рекомендация), если сезон полки и задан **`OPENAI_API_KEY`**.
+- **`SHELF_SEASON_BYPASS`** — для тестов: считать сезон полки активным и у cron полки не ограничивать датами 27.04–20.05 (в продакшене выключать).
 - Зависимости: `openai`, `httpx`, `anthropic`.
