@@ -9,6 +9,8 @@
 ### 2. Данные для настройки
 - **BOT_TOKEN** — токен от @BotFather
 - **GROUP_ID** — ID группы (получить через /id в боте)
+- **MAX_BOT_TOKEN** — токен MAX-бота
+- **MAX_GROUP_ID** — ID чата/группы в MAX (получить через /id в MAX-боте)
 - Файл **.env** с переменными окружения
 
 ---
@@ -37,7 +39,10 @@ docker compose up -d
 # 5. Проверка
 curl http://localhost:8080/health
 docker compose logs -f bot
+docker compose logs -f bot-max
 ```
+
+`docker-compose.yml` запускает два процесса: `bot` для Telegram и API мониторинга, `bot-max` для MAX. API включён только у Telegram-сервиса, чтобы оба бота не занимали один порт.
 
 ---
 
@@ -64,20 +69,26 @@ pip install -r requirements.txt
 
 # 5. Создайте .env
 cp .env.example .env
-nano .env   # Заполните BOT_TOKEN, GROUP_ID
+nano .env   # Заполните BOT_TOKEN, GROUP_ID, MAX_BOT_TOKEN, MAX_GROUP_ID
 
-# 6. Установите systemd
+# 6. Установите systemd units
 sudo cp deploy/bakery-bot.service /etc/systemd/system/
+sudo cp deploy/bakery-bot-max.service /etc/systemd/system/
 # Отредактируйте пути (User, WorkingDirectory) если логин не deploy
 sudo nano /etc/systemd/system/bakery-bot.service
+sudo nano /etc/systemd/system/bakery-bot-max.service
 
 sudo systemctl daemon-reload
 sudo systemctl enable bakery-bot
+sudo systemctl enable bakery-bot-max
 sudo systemctl start bakery-bot
+sudo systemctl start bakery-bot-max
 sudo systemctl status bakery-bot
+sudo systemctl status bakery-bot-max
 
 # 7. Логи
 journalctl -u bakery-bot -f
+journalctl -u bakery-bot-max -f
 ```
 
 ---
@@ -87,6 +98,8 @@ journalctl -u bakery-bot -f
 ```
 BOT_TOKEN=ваш_токен_от_botfather
 GROUP_ID=-1005004718978
+MAX_BOT_TOKEN=ваш_токен_max
+MAX_GROUP_ID=-1005004718978
 
 REMIND_AFTER_MIN=15
 ESCALATE_AFTER_MIN=30
@@ -131,3 +144,5 @@ rsync -avz --exclude '.git' --exclude 'venv' --exclude '__pycache__' \
 1. `curl http://ВАШ_IP:8080/health` — должен вернуть `{"status":"healthy"}`
 2. Напишите боту /start в Telegram — должен ответить
 3. В группе отправьте /id — бот покажет chat_id
+4. Напишите MAX-боту /start — должен ответить
+5. В MAX-группе отправьте /id — бот покажет MAX chat_id

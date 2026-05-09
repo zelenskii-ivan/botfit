@@ -45,16 +45,17 @@ python main_max.py
 docker compose up -d
 ```
 
-API доступен на порту 8080: `GET /health`, `GET /status`
+Docker Compose запускает оба бота: `bot` для Telegram и `bot-max` для MAX. API доступен на порту 8080: `GET /health`, `GET /status`.
 
 ### Вариант 2: VPS + systemd
 
 1. Создайте VPS в Timeweb Cloud
 2. Скопируйте проект: `rsync -avz . user@server:~/bakery-bot/`
 3. На сервере: создайте `.env`, настройте venv
-4. Установите systemd unit: `sudo cp deploy/bakery-bot.service /etc/systemd/system/`
+4. Установите systemd units:
+   `sudo cp deploy/bakery-bot.service deploy/bakery-bot-max.service /etc/systemd/system/`
 5. Отредактируйте пути в unit-файле
-6. `sudo systemctl enable bakery-bot && sudo systemctl start bakery-bot`
+6. `sudo systemctl enable bakery-bot bakery-bot-max && sudo systemctl start bakery-bot bakery-bot-max`
 
 ### Health Check
 

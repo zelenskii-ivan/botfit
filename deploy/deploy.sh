@@ -15,6 +15,7 @@ echo "==> Запуск на сервере..."
 ssh "$TARGET" "cd ~/bakery-bot && python -m venv venv && source venv/bin/activate && pip install -r requirements.txt"
 
 echo "==> Перезапуск systemd (если настроен)..."
-ssh "$TARGET" "sudo systemctl restart bakery-bot 2>/dev/null || echo 'Сервис не настроен. Запустите: python main.py'"
+ssh "$TARGET" "sudo systemctl restart bakery-bot 2>/dev/null || echo 'Telegram service не настроен. Запустите: python main.py'"
+ssh "$TARGET" "sudo systemctl restart bakery-bot-max 2>/dev/null || echo 'MAX service не настроен. Запустите: RUN_API=false python main_max.py'"
 
 echo "==> Готово."

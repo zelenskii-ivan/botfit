@@ -7,9 +7,19 @@ services:
     container_name: bakery-bot
     restart: unless-stopped
     env_file: .env
+    command: ["python", "main.py"]
     environment:
       - RUN_API=true
       - API_HOST=0.0.0.0
       - API_PORT=8080
     ports:
       - "8080:8080"
+
+  bot-max:
+    build: .
+    container_name: bakery-bot-max
+    restart: unless-stopped
+    env_file: .env
+    command: ["python", "main_max.py"]
+    environment:
+      - RUN_API=false
