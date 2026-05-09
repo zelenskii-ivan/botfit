@@ -5,6 +5,10 @@ import os
 API_TOKEN = os.getenv("BOT_TOKEN", "PASTE_YOUR_TOKEN_HERE")
 GROUP_ID = int(os.getenv("GROUP_ID", "-1001234567890"))
 
+# MAX messenger
+MAX_BOT_TOKEN = os.getenv("MAX_BOT_TOKEN", "").strip()
+MAX_GROUP_ID = int(os.getenv("MAX_GROUP_ID", os.getenv("GROUP_ID", "-1001234567890")))
+
 # Таймауты (минуты)
 REMIND_AFTER_MIN = int(os.getenv("REMIND_AFTER_MIN", "15"))
 ESCALATE_AFTER_MIN = int(os.getenv("ESCALATE_AFTER_MIN", "30"))

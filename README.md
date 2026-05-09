@@ -1,6 +1,6 @@
 # Bakery Bot — бот контроля кофейни/пекарни
 
-Telegram-бот для напоминаний и контроля работы: молочка, выпечка, чеклисты открытия/закрытия.
+Бот для напоминаний и контроля работы в Telegram и MAX: молочка, выпечка, чеклисты открытия/закрытия.
 
 📖 **Подробная инструкция:** [ИНСТРУКЦИЯ.md](ИНСТРУКЦИЯ.md)
 
@@ -20,13 +20,21 @@ python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 cp .env.example .env
-# Отредактируйте .env: BOT_TOKEN, GROUP_ID
+# Отредактируйте .env: BOT_TOKEN/GROUP_ID для Telegram или MAX_BOT_TOKEN/MAX_GROUP_ID для MAX
 ```
 
 ## Запуск
 
+Telegram:
+
 ```bash
 python main.py
+```
+
+MAX:
+
+```bash
+python main_max.py
 ```
 
 ## Деплой на Timeweb Cloud
@@ -70,6 +78,8 @@ API доступен на порту 8080: `GET /health`, `GET /status`
 | /cash_ok | Подтвердить подсчёт наличных |
 | /closing_ok | Подтвердить чеклист закрытия |
 
+Команды MAX-бота такие же. В MAX текущий релиз принимает фото/видео для регламентов, но ИИ-анализ полки оставлен для следующего релиза.
+
 📦 **Деплой:** см. [DEPLOY.md](DEPLOY.md)
 
 **Уведомления:** памятка отправляется 2 раза в день (9:00 и 15:00) с обязательными работами.
@@ -87,5 +97,7 @@ botrop/
 │   ├── scheduler.py
 │   └── app.py
 ├── deploy/        # Конфиги для деплоя
-└── main.py        # Точка входа
+├── bot_max/       # Адаптер и обработчики MAX
+├── main.py        # Точка входа Telegram
+└── main_max.py    # Точка входа MAX
 ```
