@@ -27,6 +27,10 @@ class MaxBotAdapter:
     def __init__(self, bot: Any):
         self._bot = bot
 
-    async def send_message(self, chat_id: int, text: str, **_: Any) -> Any:
-        return await self._bot.send_message(chat_id=chat_id, text=html_to_max_text(text))
+    async def send_message(self, chat_id: int, text: str, **kwargs: Any) -> Any:
+        return await self._bot.send_message(
+            chat_id=chat_id,
+            text=html_to_max_text(text),
+            attachments=kwargs.get("attachments"),
+        )
 

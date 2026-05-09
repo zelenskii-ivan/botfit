@@ -101,3 +101,11 @@ async def on_video(message: Message):
         st["status"] = "done"
         await message.reply("✅ <b>МОЛОЧКА</b>: видео принято. Отчёт закрыт.")
         clear_await()
+
+
+@router.message(F.text)
+async def on_text_bridge(message: Message):
+    """Forward ordinary chat text to MAX when the bridge is enabled."""
+    from bot.bridge import forward_telegram_to_max
+
+    await forward_telegram_to_max(message)

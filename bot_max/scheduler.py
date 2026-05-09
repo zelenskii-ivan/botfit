@@ -16,6 +16,7 @@ from bot.tasks import (
     request_shelf_photo,
 )
 from bot_max.adapter import MaxBotAdapter
+from bot_max.keyboards import memo_keyboard
 
 
 async def setup_max_schedule(scheduler: AsyncIOScheduler, bot: MaxBotAdapter) -> None:
@@ -40,7 +41,11 @@ async def setup_max_schedule(scheduler: AsyncIOScheduler, bot: MaxBotAdapter) ->
         await request_closing(bot, scheduler, MAX_GROUP_ID)
 
     async def job_memo() -> None:
-        await bot.send_message(MAX_GROUP_ID, "⏰ <b>Напоминание: обязательные работы</b>\n\n" + MEMO_TEXT)
+        await bot.send_message(
+            MAX_GROUP_ID,
+            "⏰ <b>Напоминание: обязательные работы</b>\n\n" + MEMO_TEXT,
+            attachments=[memo_keyboard()],
+        )
 
     async def job_shelf() -> None:
         await request_shelf_photo(bot, scheduler, MAX_GROUP_ID)

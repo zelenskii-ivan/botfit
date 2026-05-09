@@ -23,12 +23,17 @@ from bot.tasks import (
 )
 from bot_max.adapter import MaxBotAdapter, html_to_max_text
 from bot_max.events import chat_id_from_event, has_image, has_video, text_from_event
+from bot_max.keyboards import main_keyboard, memo_keyboard
 
 log = logging.getLogger(__name__)
 
 
 async def answer(event: MessageCreated, text: str) -> Any:
     return await event.message.answer(html_to_max_text(text))
+
+
+async def answer_with_keyboard(event: MessageCreated, text: str, keyboard: Any) -> Any:
+    return await event.message.answer(html_to_max_text(text), attachments=[keyboard])
 
 
 def _chat_id(event: MessageCreated) -> int:
@@ -46,10 +51,10 @@ def register_handlers(dp: Any, bot: MaxBotAdapter, scheduler: Any) -> None:
     """Register MAX handlers on a Dispatcher."""
 
     async def start(event: MessageCreated) -> None:
-        await answer(event, START_MESSAGE)
+        await answer_with_keyboard(event, START_MESSAGE, main_keyboard())
 
     async def memo(event: MessageCreated) -> None:
-        await answer(event, MEMO_TEXT)
+        await answer_with_keyboard(event, MEMO_TEXT, memo_keyboard())
 
     async def status(event: MessageCreated) -> None:
         await answer(event, format_day_status_html(day_key()))
@@ -181,6 +186,11 @@ def register_handlers(dp: Any, bot: MaxBotAdapter, scheduler: Any) -> None:
             return
         if text == "🌙 Закрытие ОК":
             await closing_ok(event)
+            return
+
+        from bot.bridge import forward_max_to_telegram
+
+        if await forward_max_to_telegram(event):
             return
 
         awaiting = get_awaiting()

@@ -37,6 +37,18 @@ MAX:
 python main_max.py
 ```
 
+## Bridge Telegram ↔ MAX
+
+Текстовый мост между группами включается через `.env`:
+
+```bash
+BRIDGE_ENABLED=true
+TELEGRAM_BRIDGE_CHAT_ID=-100...
+MAX_BRIDGE_CHAT_ID=-745...
+```
+
+Мост пересылает только обычные текстовые сообщения. Команды, кнопки регламентов и сообщения ботов не дублируются.
+
 ## Деплой на Timeweb Cloud
 
 ### Вариант 1: Docker

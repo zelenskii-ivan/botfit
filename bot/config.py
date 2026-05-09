@@ -9,6 +9,17 @@ GROUP_ID = int(os.getenv("GROUP_ID", "-1001234567890"))
 MAX_BOT_TOKEN = os.getenv("MAX_BOT_TOKEN", "").strip()
 MAX_GROUP_ID = int(os.getenv("MAX_GROUP_ID", os.getenv("GROUP_ID", "-1001234567890")))
 
+
+def _opt_int(name: str, default: int) -> int:
+    v = os.getenv(name, "").strip()
+    return int(v) if v else default
+
+
+# Text bridge between Telegram and MAX groups
+BRIDGE_ENABLED = os.getenv("BRIDGE_ENABLED", "false").lower() == "true"
+TELEGRAM_BRIDGE_CHAT_ID = _opt_int("TELEGRAM_BRIDGE_CHAT_ID", GROUP_ID)
+MAX_BRIDGE_CHAT_ID = _opt_int("MAX_BRIDGE_CHAT_ID", MAX_GROUP_ID)
+
 # Таймауты (минуты)
 REMIND_AFTER_MIN = int(os.getenv("REMIND_AFTER_MIN", "15"))
 ESCALATE_AFTER_MIN = int(os.getenv("ESCALATE_AFTER_MIN", "30"))

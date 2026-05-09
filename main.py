@@ -41,8 +41,11 @@ async def run_bot():
 
     await setup_schedule(scheduler)
 
-    me = await bot.get_me()
-    log.info("Bakery Bot v%s started: @%s, GROUP_ID=%s", __version__, me.username, os.getenv("GROUP_ID"))
+    try:
+        me = await bot.get_me()
+        log.info("Bakery Bot v%s started: @%s, GROUP_ID=%s", __version__, me.username, os.getenv("GROUP_ID"))
+    except Exception as exc:
+        log.warning("Bakery Bot v%s started, get_me failed: %r", __version__, exc)
 
     try:
         await dp.start_polling(bot)
